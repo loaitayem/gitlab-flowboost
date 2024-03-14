@@ -1,0 +1,54 @@
+{
+    "mode": "dev",
+    "mergeRequestOptions": {
+      "allowToCreateTempBranches": true,
+      "setToDeleteBranchAfterMainMerge": false,
+      "mainBranch": "master",
+      "branches": [
+        {
+          "name": "env/dev",
+          "requiredLabels": ["dev"],
+          "isDraftPR": false
+        },
+        {
+          "name": "env/stage",
+          "requiredLabels": ["stage"],
+          "isDraftPR": true
+        },
+        {
+          "name": "master",
+          "requiredLabels": ["master"],
+          "isDraftPR": true
+        }
+      ]
+    },
+    "branchesOptions": {
+      "namingConventions": {
+        "feature": {
+          "template": "feature/${issueId}-${description}",
+          "placeHoldersValidation": {
+            "issueId": "^\\d+$",
+            "description": "^.{1,50}$"
+          },
+          "finalValidationRegex": "^feature\\/\\w+-.*$",
+          "defaultBaseBranch": "master"
+        },
+        "hotfix": {
+          "template": "hotfix/${issueId}-${description}",
+          "placeHoldersValidation": {
+            "issueId": "^\\d+$",
+            "description": "^.{1,50}$"
+          },
+          "defaultBaseBranch": "master"
+        },
+        "merge": {
+          "template": "merge/${issueId}-${targetEnvironement}",
+          "placeHoldersValidation": {
+            "issueId": "^\\d+$",
+            "description": "^.{1,50}$"
+          },
+          "defaultBaseBranch": "env/dev"
+        }
+      }
+    }
+}

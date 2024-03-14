@@ -1,0 +1,31 @@
+{
+  "name": "gitlab-flowboost-beta",
+  "version": "1.0.25",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "push": "node cli.js",
+    "test": "node unitTests.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "inquirer": "^9.2.16",
+    "node-notifier": "^10.0.1"
+  },
+  "funding": {
+    "type": "individual",
+    "url": "https://www.PayPal.Me/nitrobotic"
+  },
+  "bin": {
+    "flow-boost": "./cli.js"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/loaitayem/gitlab-flowboost.git"
+  }
+}
