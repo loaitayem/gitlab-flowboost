@@ -75,7 +75,8 @@ async function createMergeRequestAndPush(targetBranch, isDraftPR, shouldDeleteBr
   
       let result = '';
       if (existOnServer && canPushToServer) {
-        await runGitCommand('commit --allow-empty -m "Trigger PR creation"');
+        const currentCommitMessage = await runGitCommand('log -1 --pretty=%B');
+        await runGitCommand(`commit --amend -m "${currentCommitMessage.trim()} - ${includeOptions ?? '- triggered PR creation'}"`);
         result = await runGitCommand(`push -f origin ${currentBranch} ${options}`, true);
       } else if (!existOnServer) {
         result = await runGitCommand(`push origin ${currentBranch} ${options}`, true);
