@@ -5,13 +5,16 @@
   "main": "index.js",
   "scripts": {
     "command": "node cli.js",
-    "test": "node unitTests.js"
+    "test": "node unitTests.js",
+    "slack": "node credentialManager.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "inquirer": "^9.2.16"
+    "@slack/web-api": "^7.0.2",
+    "inquirer": "^9.2.16",
+    "node-addon-api": "^8.0.0"
   },
   "funding": {
     "type": "individual",
