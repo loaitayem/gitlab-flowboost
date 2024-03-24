@@ -4,15 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "push": "node cli.js",
+    "command": "node cli.js",
     "test": "node unitTests.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "inquirer": "^9.2.16",
-    "node-notifier": "^10.0.1"
+    "inquirer": "^9.2.16"
   },
   "funding": {
     "type": "individual",

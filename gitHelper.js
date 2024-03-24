@@ -1,4 +1,5 @@
 const { exec } = require('child_process');
+const { askForCommitMessage } = require('./inquirerHelper');
 
 async function getCurrentBranchName() {
   const currentBranchOutput = await runGitCommand('rev-parse --abbrev-ref HEAD');
@@ -170,6 +171,48 @@ async function hasRemoteUrl() {
   });
 }
 
+async function executeAction(action, branchName) {
+  switch (action) {
+    case 'stash':
+      await runGitCommand('stash');
+      break;
+    case 'reset_keep_stash_create':
+      await runGitCommand('reset --hard');
+      await runGitCommandWithBranch('checkout -b ${branchName}', branchName);
+      break;
+    case 'reset_remove_stash_create':
+      await runGitCommand('reset --hard');
+      await runGitCommand('stash drop');
+      await runGitCommandWithBranch('checkout -b ${branchName}', branchName);
+      break;
+    case 'create':
+      await runGitCommandWithBranch('checkout -b ${branchName}', branchName);
+      break;
+    case 'add_create':
+      await runGitCommand('add .');
+      await runGitCommandWithBranch('checkout -b ${branchName}', branchName);
+      break;
+    case 'commit-squash':
+      const commitSquashMessage = await askForCommitMessage();
+      await stageAndCommit(commitSquashMessage);
+      await squashCommitsBeforeBase();
+      break;
+    case 'commit':
+      const commitMessage = await askForCommitMessage();
+      await stageAndCommit(commitMessage);
+      break;
+    case 'reset-server':
+      if (branchName === await getCurrentBranchName()) {
+        await runGitCommandWithBranch(`reset --hard origin/${branchName}`, branchName);
+      } else {
+        await runGitCommand(`fetch origin ${branchName}:${branchName}`);
+      }
+      break;
+    default:
+      break;
+  }
+}
+
 module.exports = {
   runGitCommand,
   runGitCommandWithBranch,
@@ -182,5 +225,6 @@ module.exports = {
   isUpstreamSet,
   stageAndCommit,
   squashCommitsBeforeBase,
-  hasRemoteUrl
+  hasRemoteUrl,
+  executeAction
 };
