@@ -1,3 +1,7 @@
+const { exec } = require('child_process');
+const { confirmReset } = require('./inquirerHelper');
+const { executeAction } = require('./gitHelper');
+
 async function handleBranchReseting(defaultBaseBranch, shouldConfirm = true) {
     if (shouldConfirm) {
       const confirmResetResult = await confirmReset(defaultBaseBranch);
