@@ -13,6 +13,8 @@
   "license": "ISC",
   "dependencies": {
     "@slack/web-api": "^7.0.2",
+    "axios": "^1.6.8",
+    "express": "^4.19.1",
     "inquirer": "^9.2.16",
     "node-addon-api": "^8.0.0"
   },

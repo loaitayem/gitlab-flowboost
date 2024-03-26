@@ -13,6 +13,22 @@ async function handleBranchReseting(defaultBaseBranch, shouldConfirm = true) {
     }
   }
 
+  async function open(url) {
+    // Platform-specific commands to open the URL in the default browser
+    console.log('Opening URL:', url);
+    switch (process.platform) {
+        case 'darwin': // macOS
+          exec(`open "${url}"`);
+          break;
+        case 'win32': // Windows
+          exec(`start "" "${url}"`);
+          break;
+        default: // Linux and others
+          exec(`xdg-open "${url}"`);
+          break;
+      }
+  }
+
   async function findLinksAndOpenThem(pushCommandResult) {
     return new Promise((resolve, reject) => {
       try {
@@ -21,18 +37,7 @@ async function handleBranchReseting(defaultBaseBranch, shouldConfirm = true) {
           const mergeRequestUrl = urlMatch[0];
           if (isValidUrl(mergeRequestUrl)) {
             console.log('Opening merge request URL:', mergeRequestUrl);
-            // Platform-specific commands to open the URL in the default browser
-            switch (process.platform) {
-              case 'darwin': // macOS
-                exec(`open ${mergeRequestUrl}`);
-                break;
-              case 'win32': // Windows
-                exec(`start ${mergeRequestUrl}`);
-                break;
-              default: // Linux and others
-                exec(`xdg-open ${mergeRequestUrl}`);
-                break;
-            }
+            open(mergeRequestUrl);
           }
         }
         resolve();
@@ -53,4 +58,4 @@ function isValidUrl(string) {
     }
   }
 
-  module.exports = { handleBranchReseting, findLinksAndOpenThem };
+  module.exports = { handleBranchReseting, findLinksAndOpenThem, open };

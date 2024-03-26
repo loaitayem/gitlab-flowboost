@@ -16,6 +16,7 @@ async function askForCredentialsAndStore(serviceName) {
             type: 'password',
             name: 'password',
             message: 'Enter your password:',
+            mask: '*',
             validate: input => !!input || 'Password cannot be empty.',
         }
     ];
@@ -24,7 +25,8 @@ async function askForCredentialsAndStore(serviceName) {
     storeCredentialsWindows(username, password, serviceName);
 }
 
-function storeCredentialsWindows(username, password, serviceName) {
+function storeCredentialsWindows(username, password, service) {
+    const serviceName = `flow-boost:${service}`;
     exec(`cmdkey /generic:${serviceName} /user:${username} /pass:${password}`, (error, stdout, stderr) => {
         if (error) {
             console.error(`Failed to store credentials: ${stderr}`);
@@ -33,28 +35,29 @@ function storeCredentialsWindows(username, password, serviceName) {
     });
 }
 
-let reissue = false;
-async function retrieveCrediantalsOnWindows(serviceName) {
-    if (process.platform !== 'win32') {
-        // TODO support feature on other platforms
-        console.error('This feature is only available on Windows.');
-        return;
-    }
-
+function getCredentials(service) {
     const credentialManager = require('./build/Release/credentialManager.node');
 
-    const credentials = credentialManager.getPassword(serviceName);
+    const credentials = credentialManager.getPassword(service);
     if (credentials) {
-        return { userName: credentials.username, pass: credentials.password };
+        return {username: credentials.username.toString(), password: credentials.password.toString()};
     } else {
-        await askForCredentialsAndStore(serviceName);
-        if (!reissue) {
-          reissue = true;
-          return retrieveCrediantalsOnWindows(serviceName);
-        } else {
-            console.error('Failed to retrieve credentials for');
-        }
+        console.error('Failed to retrieve credentials for:', service);
+        return undefined;
     }
 }
 
-module.exports = { retrieveCrediantalsOnWindows };
+async function retrieveCredentials(service, ask = true) {
+    const serviceName = `flow-boost:${service}`;
+    const credentials = getCredentials(serviceName);
+    if (!credentials) {
+        if (ask) {
+          await askForCredentialsAndStore(serviceName);
+          return getCredentials(serviceName);
+        }
+    }
+
+    return credentials;
+}
+
+module.exports = { retrieveCredentials, storeCredentialsWindows };

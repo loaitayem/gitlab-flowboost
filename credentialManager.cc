@@ -3,12 +3,28 @@
 #include <windows.h>
 #include <wincred.h>
 
+// Helper function to convert UTF-16 to UTF-8
+std::string wideToUtf8(const wchar_t* buffer, DWORD length) {
+    int sizeNeeded = WideCharToMultiByte(CP_UTF8, 0, buffer, length, NULL, 0, NULL, NULL);
+    std::string utf8Str(sizeNeeded, 0);
+    WideCharToMultiByte(CP_UTF8, 0, buffer, length, &utf8Str[0], sizeNeeded, NULL, NULL);
+    return utf8Str;
+}
+
 // Helper function to retrieve the password
 bool GetPassword(const std::string& service, std::string& username, std::string& password) {
-    CREDENTIAL* cred;
+    CREDENTIALA* cred;
     if (CredReadA(service.c_str(), CRED_TYPE_GENERIC, 0, &cred)) {
         username = std::string(cred->UserName);
-        password = std::string(reinterpret_cast<char*>(cred->CredentialBlob), cred->CredentialBlobSize);
+
+        // Check if the password needs decoding (assuming UTF-16 encoding)
+        if (cred->CredentialBlobSize % 2 == 0) {
+            password = wideToUtf8(reinterpret_cast<wchar_t*>(cred->CredentialBlob), cred->CredentialBlobSize / 2);
+        } else {
+            // If the password doesn't appear to be UTF-16 encoded, use it as is
+            password = std::string(reinterpret_cast<char*>(cred->CredentialBlob), cred->CredentialBlobSize);
+        }
+
         CredFree(cred);
         return true;
     }

@@ -1,4 +1,5 @@
 const { getFeature, getBranchSettings } = require('./configHelper');
+const { sendMessage } = require('./slackHelper');
 
 runTests();
 let errors = [];
@@ -44,4 +45,14 @@ async function getFeatureTest() {
     if (!allowTempBranches) {
         errors.push(`Error: Expected "true" but got "${allowTempBranches}" in allowToCreateTempBranches`);
     }
+}
+
+async function slackLoginTest() {
+    // Implement your test mode-specific logic here
+    const token = await loginToSlack();
+    if (!token) {
+        errors.push(`Error: Expected a token but got "${token}"`);
+    }
+
+    console.log(token);
 }

@@ -1,8 +1,6 @@
-const { getLabelsPushOptionFromConfig, shouldDeleteBranch, getBranchSettings, allowToCreateTempBranches, getMainBranch, isDraft } = require('./configHelper');
-const { runGitCommand, getCurrentBranchName, uncomittedChangesExist, checkSyncWithServer,
-   deleteBranchesLocally, doesBranchExistOnServer, isUpstreamSet } = require('./gitHelper');
+const { shouldDeleteBranch, getMainBranch, isDraft } = require('./configHelper');
+const { runGitCommand, getCurrentBranchName, uncomittedChangesExist } = require('./gitHelper');
 const { askForBranchNameAndType } = require('./inquirerHelper');
-const { askUserForAction, confirmReset } = require('./inquirerHelper');
 const { createAllMergeRequestsAndPush, createMergeRequestAndPush} = require('./mergeRequestsHelper');
 const { createNewBranchFromDefaultBranchWhileChecked, createNewBranchFromDefaultBranchWhileNOTChecked } = require('./branchHelper');
 const { readConfig } = require('./configHelper');
