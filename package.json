@@ -6,7 +6,7 @@
   "scripts": {
     "boost": "node cli.js",
     "test": "node unitTests.js",
-    "install": "prebuild-install || node-gyp rebuild",
+    "install": "npx prebuild-install || node-gyp rebuild",
     "prebuild": "prebuild --target=16.0.0 --target=17.0.0 --target=18.0.0 --target=19.0.0 --target=20.0.0 --arch=x64 --platform=win32 --out=build/Release",
     "prebuild-ci": "prebuild-ci"
   },
