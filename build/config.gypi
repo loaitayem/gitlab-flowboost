@@ -409,9 +409,21 @@
     "v8_trace_maps": 0,
     "v8_use_siphash": 1,
     "want_separate_host_toolset": 0,
-    "nodedir": "C:\\Users\\loai_\\AppData\\Local\\node-gyp\\Cache\\20.9.0",
+    "nodedir": "C:\\Users\\loai_\\AppData\\Local\\Temp\\prebuild\\node\\20.0.0",
     "python": "C:\\Python312\\python.exe",
     "standalone_static_library": 1,
-    "msbuild_path": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\BuildTools\\MSBuild\\15.0\\Bin\\MSBuild.exe"
+    "msbuild_path": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\BuildTools\\MSBuild\\15.0\\Bin\\MSBuild.exe",
+    "target": "20.0.0",
+    "build_v8_with_gn": "false",
+    "cache": "C:\\Users\\loai_\\AppData\\Local\\npm-cache",
+    "globalconfig": "C:\\Users\\loai_\\AppData\\Roaming\\npm\\etc\\npmrc",
+    "global_prefix": "C:\\Users\\loai_\\AppData\\Roaming\\npm",
+    "init_module": "C:\\Users\\loai_\\.npm-init.js",
+    "local_prefix": "C:\\Users\\loai_\\source\\repos\\gitlab-flowboost",
+    "node_gyp": "C:\\Users\\loai_\\AppData\\Roaming\\npm\\node_modules\\npm\\node_modules\\node-gyp\\bin\\node-gyp.js",
+    "npm_version": "10.5.0",
+    "prefix": "C:\\Users\\loai_\\AppData\\Roaming\\npm",
+    "userconfig": "C:\\Users\\loai_\\.npmrc",
+    "user_agent": "npm/10.5.0 node/v20.9.0 win32 x64 workspaces/false"
   }
 }

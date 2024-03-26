@@ -4,19 +4,19 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "command": "node cli.js",
+    "boost": "node cli.js",
     "test": "node unitTests.js",
-    "slack": "node credentialManager.js"
+    "install": "prebuild-install || node-gyp rebuild",
+    "prebuild": "prebuild --target=16.0.0 --target=17.0.0 --target=18.0.0 --target=19.0.0 --target=20.0.0 --arch=x64 --platform=win32 --out=build/Release",
+    "prebuild-ci": "prebuild-ci"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@slack/web-api": "^7.0.2",
     "axios": "^1.6.8",
     "express": "^4.19.1",
-    "inquirer": "^9.2.16",
-    "node-addon-api": "^8.0.0"
+    "inquirer": "^9.2.16"
   },
   "funding": {
     "type": "individual",
@@ -26,10 +26,18 @@
     "flow-boost": "./cli.js"
   },
   "devDependencies": {
-    "eslint": "^8.57.0"
+    "eslint": "^8.57.0",
+    "node-addon-api": "^8.0.0",
+    "prebuild": "^13.0.0",
+    "prebuild-install": "^7.1.2"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/loaitayem/gitlab-flowboost.git"
+  },
+  "binary": {
+    "module_name": "credentialManager",
+    "module_path": "./build/Release/",
+    "host": "https://github.com/loaitayem/gitlab-flowboost/releases/download/"
   }
 }
