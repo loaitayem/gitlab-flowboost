@@ -1,5 +1,5 @@
 node_modules/
 cert.pem
 key.pem
-build/
-prebuilds/
+build/**
+prebuilds/**

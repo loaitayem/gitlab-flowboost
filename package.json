@@ -38,6 +38,6 @@
   "binary": {
     "module_name": "credentialManager",
     "module_path": "./build/Release/",
-    "host": "https://github.com/loaitayem/gitlab-flowboost/releases/download/"
+    "host": "https://github.com/loaitayem/gitlab-flowboost/releases/tag/v1.0.31"
   }
 }
