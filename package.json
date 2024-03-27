@@ -1,12 +1,12 @@
 {
   "name": "gitlab-flowboost-beta",
-  "version": "1.0.35",
+  "version": "1.0.36",
   "description": "",
   "main": "index.js",
   "scripts": {
     "boost": "node cli.js",
     "test": "node unitTests.js",
-    "install": "npx prebuild-install || node-gyp rebuild",
+    "install": "npx prebuild-install --runtime napi || node-gyp rebuild",
     "prebuild": "prebuild --runtime napi --all --arch x64 --platform win32 --out build/Release",
     "prebuild-ci": "prebuild-ci"
   },
