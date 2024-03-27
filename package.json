@@ -1,6 +1,6 @@
 {
   "name": "gitlab-flowboost-beta",
-  "version": "1.0.38",
+  "version": "1.0.39",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -40,6 +40,7 @@
     "module_path": "./build/Release/",
     "napi_versions": [2,3],
     "host": "https://github.com/loaitayem/gitlab-flowboost/releases/latest/download",
-    "package_name": "{module_name}-v{package_version}-napi-{platform}-{arch}.tar.gz"
+    "remote_path": "/v{version}/",
+    "package_name": "{module_name}-v{version}-napi-{platform}-{arch}.tar.gz"
   }
 }
