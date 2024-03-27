@@ -37,7 +37,7 @@
   },
   "binary": {
     "module_name": "gitlab-flowboost-beta",
-    "module_path": "./build/Release/{node_abi}-{platform}-{arch}/",
+    "module_path": "./build/Release/",
     "napi_versions": [2,3],
     "host": "https://github.com/loaitayem/gitlab-flowboost/releases/latest/download",
     "package_name": "{module_name}-v{package_version}-napi-{platform}-{arch}.tar.gz"
