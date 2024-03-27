@@ -1,6 +1,6 @@
 {
   "name": "gitlab-flowboost-beta",
-  "version": "1.0.36",
+  "version": "1.0.37",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -36,9 +36,10 @@
     "url": "git+https://github.com/loaitayem/gitlab-flowboost.git"
   },
   "binary": {
-    "module_name": "credentialManager",
-    "module_path": "./build/Release/",
+    "module_name": "gitlab-flowboost-beta",
+    "module_path": "./build/Release/{node_abi}-{platform}-{arch}/",
     "napi_versions": [2,3],
-    "host": "https://github.com/loaitayem/gitlab-flowboost/releases/download"
+    "host": "https://github.com/loaitayem/gitlab-flowboost/releases/latest/download",
+    "package_name": "{module_name}-v{package_version}-napi-{platform}-{arch}.tar.gz"
   }
 }
