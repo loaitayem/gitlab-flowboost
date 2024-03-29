@@ -1,5 +1,5 @@
 const { shouldDeleteBranch, getMainBranch, isDraft } = require('./configHelper');
-const { runGitCommand, getCurrentBranchName, uncomittedChangesExist, getCurrentCommitMessage } = require('./gitHelper');
+const { runGitCommand, getCurrentBranchName, uncomittedChangesExist, getCurrentCommitMessage, executeAction } = require('./gitHelper');
 const { askForBranchNameAndType } = require('./inquirerHelper');
 const { createAllMergeRequestsAndPush, createMergeRequestAndPush, handleMergeRequestsCompletion } = require('./mergeRequestsHelper');
 const { createNewBranchFromDefaultBranchWhileChecked, createNewBranchFromDefaultBranchWhileNOTChecked } = require('./branchHelper');
@@ -18,9 +18,9 @@ async function handleCreateAllMr() {
   await createAllMergeRequestsAndPush();
 }
 
-async function handleCreateMr(targetBranch) {
+async function handleCreateMr(targetBranchName) {
   const mainBranch = getMainBranch();
-  const branchToCreateMergeRequestTo = targetBranch || mainBranch;
+  const branchToCreateMergeRequestTo = targetBranchName || mainBranch;
 
   if (!branchToCreateMergeRequestTo) { 
     return "No target branch specified. Please provide a target branch to create a merge request to or ensure you have a main branch specified in your config."
@@ -33,7 +33,7 @@ async function handleCreateMr(targetBranch) {
     shouldDelete = shouldDeleteBranch();
   }
 
-  const result = await createMergeRequestAndPush(targetBranch, isDraftPR, shouldDelete);
+  const result = await createMergeRequestAndPush(branchToCreateMergeRequestTo, isDraftPR, shouldDelete);
   const commitMessage = getCurrentCommitMessage();
   await handleMergeRequestsCompletion([{response: result , targetBranch: branchToCreateMergeRequestTo}], commitMessage);
   
@@ -49,8 +49,7 @@ async function commitAndCreatePR(commitMessage) {
 
   if (status) {
     // Unstaged changes exist, proceed with adding and committing
-    await runGitCommand('add .');
-    await runGitCommand(`commit -m "${commitMessage}"`);
+    await executeAction('stage-commit', commitMessage);
     await createAllMergeRequestsAndPush();
   } else {
     // No unstaged changes, log a message and skip add/commit

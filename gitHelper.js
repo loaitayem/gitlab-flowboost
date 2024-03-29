@@ -175,41 +175,47 @@ async function getCurrentCommitMessage() {
   return await runGitCommand('log -1 --pretty=%B');
 }
 
-async function executeAction(action, branchName) {
+async function executeAction(action, param) {
   switch (action) {
     case 'stash':
       await runGitCommand('stash');
       break;
     case 'reset_keep_stash_create':
       await runGitCommand('reset --hard');
-      await runGitCommandWithBranch('checkout -b ${branchName}', branchName);
+      await runGitCommandWithBranch('checkout -b ${branchName}', param);
       break;
     case 'reset_remove_stash_create':
       await runGitCommand('reset --hard');
       await runGitCommand('stash drop');
-      await runGitCommandWithBranch('checkout -b ${branchName}', branchName);
+      await runGitCommandWithBranch('checkout -b ${branchName}', param);
       break;
     case 'create':
-      await runGitCommandWithBranch('checkout -b ${branchName}', branchName);
+      await runGitCommandWithBranch('checkout -b ${branchName}', param);
       break;
     case 'add_create':
-      await runGitCommand('add .');
-      await runGitCommandWithBranch('checkout -b ${branchName}', branchName);
+      await stageChanges();
+      await runGitCommandWithBranch('checkout -b ${branchName}', param);
       break;
+    case 'stage':
+        await stageChanges();
+        break;
     case 'commit-squash':
       const commitSquashMessage = await askForCommitMessage();
       await stageAndCommit(commitSquashMessage);
-      await squashCommitsBeforeBase();
+      await squashCommitsBeforeBase(param);
       break;
-    case 'commit':
-      const commitMessage = await askForCommitMessage();
+    case 'stage-commit':
+      let commitMessage = param;
+      if (!param) {
+        commitMessage = await askForCommitMessage();
+      }
       await stageAndCommit(commitMessage);
       break;
     case 'reset-server':
-      if (branchName === await getCurrentBranchName()) {
-        await runGitCommandWithBranch(`reset --hard origin/${branchName}`, branchName);
+      if (param === await getCurrentBranchName()) {
+        await runGitCommandWithBranch(`reset --hard origin/${param}`, param);
       } else {
-        await runGitCommand(`fetch origin ${branchName}:${branchName}`);
+        await runGitCommand(`fetch origin ${param}:${param}`);
       }
       break;
     default:

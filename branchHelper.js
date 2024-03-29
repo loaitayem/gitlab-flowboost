@@ -45,7 +45,7 @@ async function createNewBranchFromDefaultBranchWhileNOTChecked(defaultBaseBranch
   
     if (uncommittedChanges) {
       console.log('Uncommitted changes detected. Stashing changes before creating a new branch.');
-      await runGitCommand("stash");
+      await executeAction("stash");
       await runGitCommand(`checkout ${defaultBaseBranch}`);
       await runGitCommand(`checkout -b ${newRequestedBranchName}`);
       await handleApplyingStashedChanges();

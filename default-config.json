@@ -4,6 +4,7 @@
       "allowToCreateTempBranches": true,
       "setToDeleteBranchAfterMainMerge": false,
       "mainBranch": "master",
+      "preCommitHooksCommands": [""],
       "branches": [
         {
           "id": 1,

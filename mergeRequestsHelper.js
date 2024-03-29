@@ -2,7 +2,7 @@ const { getLabelsPushOptionFromConfig, shouldDeleteBranch, getBranchSettings, al
 const { runGitCommand, getCurrentBranchName, uncomittedChangesExist, checkSyncWithServer,
    deleteBranchesLocally, doesBranchExistOnServer, isUpstreamSet, executeAction, getCurrentCommitMessage } = require('./gitHelper');
 const { askUserForAction } = require('./inquirerHelper');
-const { getLink,open, handleBranchReseting, getLink } = require('./commonHelper');
+const { getLink,open, handleBranchReseting } = require('./commonHelper');
 const {sendMergeRequestNotification} = require('./slackHelper');
 
 async function createMergeRequestAndPush(targetBranch, isDraftPR, shouldDeleteBranchAfterMergeOnServer, isTempBranch = false, includeOptions = true) {
@@ -14,7 +14,7 @@ async function createMergeRequestAndPush(targetBranch, isDraftPR, shouldDeleteBr
           'reset-server': 'Reset Changes.',
           'stash': 'Stash Changes.',
           'commit-squash': 'Commit my changes and squash them.',
-          'commit': 'Commit only.',
+          'stage-commit': 'Stage and Commit only.',
           'abort': `just abort the operation and do nothing.`,
         };
   
@@ -23,7 +23,8 @@ async function createMergeRequestAndPush(targetBranch, isDraftPR, shouldDeleteBr
           await handleBranchReseting(currentBranch, false);
         } else {
           if (actions[userResponse] && userResponse !== 'abort') {
-            await executeAction(userResponse);
+            const mainBranch = await getMainBranch();
+            await executeAction(userResponse, mainBranch);
           } else {
             console.log('Operation aborted or invalid option selected.');
             return;
