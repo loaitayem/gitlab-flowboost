@@ -6,16 +6,19 @@
       "mainBranch": "master",
       "branches": [
         {
+          "id": 1,
           "name": "env/dev",
           "requiredLabels": ["dev"],
           "isDraftPR": false
         },
         {
+          "id": 2,
           "name": "env/stage",
           "requiredLabels": ["stage"],
           "isDraftPR": true
         },
         {
+          "id": 3,
           "name": "master",
           "requiredLabels": ["master"],
           "isDraftPR": true
@@ -48,6 +51,35 @@
             "description": "^.{1,50}$"
           },
           "defaultBaseBranch": "env/dev"
+        }
+      }
+    },
+    "slack": {
+      "port": "3000",
+      "KeyPath" : "./localhost+2-key.pem",
+      "CaPath" : "./localhost+2.pem",
+      "vpnCertPath" : "",
+      "channels": ["engineering"],
+      "messageTemplates": {
+        "mergeRequestNotification": {
+          "template": "@here {commitText} - \n{devTemplate}\n{stageTemplate}\n{masterTemplate}\n_*flowboost automated message*_",
+          "templates": {
+            "devTemplate": {
+              "template": "DEV: {PR_URL}",
+              "branchId": 1,
+              "labels": ["urgent"]
+            },
+            "stageTemplate": {
+              "template": "STAGE: {PR_URL}",
+              "branchId": 2,
+              "labels": ["backend"]
+            },
+            "masterTemplate": {
+              "template": "Master: {PR_URL}",
+              "branchId": 3,
+              "labels": ["release"]
+            }
+          }
         }
       }
     }

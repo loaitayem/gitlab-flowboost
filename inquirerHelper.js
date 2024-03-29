@@ -92,6 +92,15 @@ async function askForBranchType() {
     return branchType;
 }
 
+async function confirm(message) {
+  const confirmChoices = {
+    'yes': `yes`,
+    'no': `no`,
+  };
+
+  return await askUserForAction(confirmChoices, message) === 'yes' ? true : false;
+}
+
 async function confirmReset(branchNameToReset) {
   const resetActions = {
     'yes': `confirm reset ${branchNameToReset} to server.`,
@@ -101,27 +110,33 @@ async function confirmReset(branchNameToReset) {
   return await askUserForAction(resetActions, 'Please confirm:') === 'yes' ? true : false;
 }
 
-async function askUserForAction(choices, message = 'Select an action:') {
+async function askUserForAction(options, message = 'Select an action:') {
     const inquirer = await loadInquirer();
-  
+    let choices = [];
+    if (Array.isArray(options)) { 
+      choices = options;
+    } else {
+      choices =  Object.entries(options).map(([key, action]) => ({
+        name: action,
+        value: key
+      }));
+    }
+    
     // Define the question for the user
-    const questions = [
+    const question = [
       {
         type: 'list',
         name: 'selectedActionKey',
         message: message,
-        choices: Object.entries(choices).map(([key, action]) => ({
-          name: action,
-          value: key
-        })),
+        choices: choices,
       }
     ];
   
     // Prompt the user with the question
-    const answers = await inquirer.prompt(questions);
+    const answers = await inquirer.prompt(question);
     
     // Return the key corresponding to the selected action
     return answers.selectedActionKey;
   }
 
-module.exports = { askForBranchNameAndType, askUserForAction, confirmReset, askForCommitMessage };
+module.exports = { askForBranchNameAndType, askUserForAction, confirmReset, askForCommitMessage, confirm };

@@ -1,10 +1,15 @@
 const { retrieveCredentials, storeCredentialsWindows } = require('./credentialManager');
 const { open } = require('./commonHelper');
-const axios = require('axios');
+const {confirm, askUserForAction} = require('./inquirerHelper');
+const {getBranchNameById} = require('./configHelper');
 const { loadInquirer } = require('./inquirerWrapper');
 const express = require('express');
 const https = require('https');
 const fs = require('fs');
+
+const { getSlackSettings } = require('./configHelper');
+const settings = getSlackSettings();
+const axios = getAxios(settings.vpnCertPath);
 
 function storeCred(credentials) {
   storeCredentialsWindows(credentials.clientId, credentials.clientSecret, 'slack');
@@ -47,17 +52,26 @@ async function promptForCredentials() {
     ]);
 }
 
+
 async function initiateOAuth(clientId, clientSecret) {
+    if (!settings?.port) { 
+        throw new Error('Port is not defined in the configuration file');
+    }
+
+    if (!settings?.KeyPath || !settings?.CaPath) {
+        throw new Error('SSL certificate paths are not defined in the configuration file');
+    }
+
     const app = express();
 
     // Read the SSL certificate and private key
-    const privateKey = fs.readFileSync('./key.pem', 'utf8');
-    const certificate = fs.readFileSync('./cert.pem', 'utf8');
+    const privateKey = fs.readFileSync(settings.KeyPath, 'utf8');
+    const certificate = fs.readFileSync(settings.CaPath, 'utf8');
     
     const credentials = { key: privateKey, cert: certificate };
     const httpsServer = https.createServer(credentials, app);
 
-    const port = 3000; // Choose an available port
+    const port = settings.port;
     let server = null;
 
     server = httpsServer.listen(port, () => {
@@ -80,7 +94,6 @@ async function initiateOAuth(clientId, clientSecret) {
                 });
 
                 server.close();
-                console.log(response);
                 resolve(response.data.authed_user.access_token);
                 res.send('Authentication successful. You can close this tab.');
             } catch (error) {
@@ -92,7 +105,24 @@ async function initiateOAuth(clientId, clientSecret) {
     });
 }
 
+function getAxios(vpnCertPath) {
+    if (vpnCertPath) {
+      const ca = fs.readFileSync(vpnCertPath);
+      const agent = new https.Agent({
+        ca: ca
+      });
+
+      return require('axios').create({ httpsAgent: agent });
+    }
+
+    return require('axios');
+}
+
 async function sendMessage(channel, message) {
+    if (!channel || !message) { 
+        throw new Error('Channel and message are required');
+    }
+
     let creds = await retrieveCred();
     let token = await retrieveToken();
     let answers;
@@ -103,10 +133,19 @@ async function sendMessage(channel, message) {
     }
 
     if (!token) {
-        token = await initiateOAuth(creds.clientId, creds.clientSecret);
-        storeToken(token);
+        try {
+          token = await initiateOAuth(creds.clientId, creds.clientSecret);
+          storeToken(token);
+        } catch (error) { 
+            console.error('Failed to authenticate:', error);
+            return;
+        }
     }
-     
+
+    if (message.includes('@here')) {
+        message = message.replace('@here', '<!here>');
+    }
+
     try {
         const response = await axios.post('https://slack.com/api/chat.postMessage', {
             channel,
@@ -119,14 +158,63 @@ async function sendMessage(channel, message) {
         });
 
         if (!response.data.ok) {
-            console.log(response.data.error);
+            if (response.data.error === 'token_revoked' || response.data.error === 'invalid_auth') {
+                // Token is invalid or expired
+                console.log('Token has expired. Initiating re-authentication...');
+                await initiateOAuth(creds.clientId, creds.clientSecret);
+                sendMessage(channel, message); // Retry sending the message after re-authentication
+            } else {
+                // Handle other errors
+                throw new Error(`Failed to send Slack message: ${response.data.error}`);
+            }
         }
 
-        console.log(token);
         console.log('Message sent successfully');
     } catch (error) {
         console.error('Failed to send message:', error);
     }
 }
 
-module.exports = { sendMessage };
+async function askForChannel() {
+    const channels = settings.channels || [];
+  
+    // Check if there are any channels configured
+    if (channels.length === 0) {
+      console.error('No channels are configured in the default-config.json.');
+      return undefined;
+    }
+
+    return await askUserForAction(settings.channels, 'Select a Slack channel:');
+  }
+
+
+
+async function sendMergeRequestNotification(message, branchToUrlMap) {
+    const shouldSend = await confirm('Do you want to send a Slack notification for the merge request?');
+    if (!shouldSend) { return; }
+
+    const channel = await askForChannel();
+    console.log(channel);
+    const templateMessage = getPRNotificationMessage(message, branchToUrlMap);
+    await sendMessage(channel, templateMessage);
+  }
+
+function getPRNotificationMessage(commitText, branchToUrlMap) {
+    let message = settings.messageTemplates.mergeRequestNotification.template;
+    message = message.replace("{commitText}", commitText);
+  
+    for (const [key, templateConfig] of Object.entries(settings.messageTemplates.mergeRequestNotification.templates)) {
+      const branchName = getBranchNameById(templateConfig.branchId);
+      const branchUrl = branchToUrlMap[branchName];
+      if (branchUrl) {
+        const sectionMessage = templateConfig.template.replace("{PR_URL}", branchUrl);
+        message = message.replace(`{${key}}`, sectionMessage);
+      } else {
+        message = message.replace(`{${key}}`, ""); // Remove placeholder if no URL is available
+      }
+    }
+  
+    return message;
+}
+
+module.exports = { sendMessage, askForChannel, sendMergeRequestNotification };

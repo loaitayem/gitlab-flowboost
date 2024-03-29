@@ -1,8 +1,9 @@
 const { getLabelsPushOptionFromConfig, shouldDeleteBranch, getBranchSettings, allowToCreateTempBranches, getMainBranch, isDraft } = require('./configHelper');
 const { runGitCommand, getCurrentBranchName, uncomittedChangesExist, checkSyncWithServer,
-   deleteBranchesLocally, doesBranchExistOnServer, isUpstreamSet, executeAction } = require('./gitHelper');
+   deleteBranchesLocally, doesBranchExistOnServer, isUpstreamSet, executeAction, getCurrentCommitMessage } = require('./gitHelper');
 const { askUserForAction } = require('./inquirerHelper');
-const { findLinksAndOpenThem, handleBranchReseting } = require('./commonHelper');
+const { getLink,open, handleBranchReseting, getLink } = require('./commonHelper');
+const {sendMergeRequestNotification} = require('./slackHelper');
 
 async function createMergeRequestAndPush(targetBranch, isDraftPR, shouldDeleteBranchAfterMergeOnServer, isTempBranch = false, includeOptions = true) {
     try {
@@ -75,7 +76,7 @@ async function createMergeRequestAndPush(targetBranch, isDraftPR, shouldDeleteBr
   
       let result = '';
       if (existOnServer && canPushToServer) {
-        const currentCommitMessage = await runGitCommand('log -1 --pretty=%B');
+        const currentCommitMessage = getCurrentCommitMessage();
         const automaticPRMessage = includeOptions ? ' - triggered PR creation' : '';
         await runGitCommand(`commit --amend -m "${currentCommitMessage.trim()} ${automaticPRMessage}"`);
         result = await runGitCommand(`push -f origin ${currentBranch} ${options}`, true);
@@ -83,9 +84,7 @@ async function createMergeRequestAndPush(targetBranch, isDraftPR, shouldDeleteBr
         result = await runGitCommand(`push origin ${currentBranch} ${options}`, true);
       }
   
-      if (result) {
-        await findLinksAndOpenThem(result.trim());
-      }
+      return result;
     } catch (error) {
       console.error(`Failed to create merge request for ${targetBranch}:`, error);
     }
@@ -147,4 +146,16 @@ async function createMergeRequestAndPush(targetBranch, isDraftPR, shouldDeleteBr
     }
   }
 
-  module.exports = { createAllMergeRequestsAndPush, createMergeRequestAndPush };
+
+  async function handleMergeRequestsCompletion(results, commitMessage) {
+    let branchToUrlMap = {};
+    results.forEach(async (result) => {
+      const mergeRequestUrl = await getLink(result.response.trim());
+      await open(mergeRequestUrl);
+      branchToUrlMap[result.targetBranch] = mergeRequestUrl;
+    });
+
+    await sendMergeRequestNotification(commitMessage, branchToUrlMap);
+  }
+
+  module.exports = { createAllMergeRequestsAndPush, createMergeRequestAndPush, handleMergeRequestsCompletion };

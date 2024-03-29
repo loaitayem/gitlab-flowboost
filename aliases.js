@@ -1,9 +1,9 @@
-const { handleCreateMr, createAllMergeRequestsAndPush, commitAndCreatePR, smartBranchCreation, checkForPotentialConflicts, handlePush } = require('./gitCommands');
+const { handleCreateMr, handleCreateAllMr, commitAndCreatePR, smartBranchCreation, checkForPotentialConflicts, handlePush } = require('./gitCommands');
 
 const aliases = {
     'push': () => handlePush(),
     'push-mr': (targetBranch) => handleCreateMr(targetBranch),
-    'push-mr-all': () => createAllMergeRequestsAndPush(),
+    'push-mr-all': () => handleCreateAllMr(),
     'commit-push-mr-all': (commitMessage) => commitAndCreatePR(commitMessage),
     'smart-branch': (baseBranch) => smartBranchCreation(baseBranch),
     'conflict-check': (targetBranch) => checkForPotentialConflicts(targetBranch),

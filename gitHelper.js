@@ -171,6 +171,10 @@ async function hasRemoteUrl() {
   });
 }
 
+async function getCurrentCommitMessage() {
+  return await runGitCommand('log -1 --pretty=%B');
+}
+
 async function executeAction(action, branchName) {
   switch (action) {
     case 'stash':
@@ -226,5 +230,6 @@ module.exports = {
   stageAndCommit,
   squashCommitsBeforeBase,
   hasRemoteUrl,
-  executeAction
+  executeAction,
+  getCurrentCommitMessage
 };

@@ -138,6 +138,10 @@ function getFeature(...keys) {
     }
 }
 
+function getBranchNameById(id) {
+  return config.mergeRequestOptions.branches.find(branch => branch.id === id).name;
+}
+
 function getBranchSettings(branchName = undefined) {
     const branches = config.mergeRequestOptions.branches;
 
@@ -149,6 +153,10 @@ function getBranchSettings(branchName = undefined) {
       name: branch.name,
       isDraftPR: branch.isDraftPR
     }));
+}
+
+function getSlackSettings() {
+    return config.slack;
 }
 
 function shouldDeleteBranch() {
@@ -179,5 +187,7 @@ module.exports = {
     shouldDeleteBranch,
     allowToCreateTempBranches,
     getMainBranch,
-    isDraft
+    isDraft,
+    getSlackSettings,
+    getBranchNameById
 };

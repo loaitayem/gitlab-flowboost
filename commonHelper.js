@@ -29,7 +29,7 @@ async function handleBranchReseting(defaultBaseBranch, shouldConfirm = true) {
       }
   }
 
-  async function findLinksAndOpenThem(pushCommandResult) {
+  async function getLink(pushCommandResult) {
     return new Promise((resolve, reject) => {
       try {
         const urlMatch = pushCommandResult.match(/(http[s]?:\/\/[\S]+)/); // Regex to find URLs in the output
@@ -37,10 +37,12 @@ async function handleBranchReseting(defaultBaseBranch, shouldConfirm = true) {
           const mergeRequestUrl = urlMatch[0];
           if (isValidUrl(mergeRequestUrl)) {
             console.log('Opening merge request URL:', mergeRequestUrl);
-            open(mergeRequestUrl);
+            resolve(mergeRequestUrl);
+          } else {
+            reject(new Error('Invalid URL found in the output'));
           }
         }
-        resolve();
+        
     } catch (error) {
         reject(error);
         throw new Error(`Error finding and opening links: ${error.message}`);
@@ -58,4 +60,4 @@ function isValidUrl(string) {
     }
   }
 
-  module.exports = { handleBranchReseting, findLinksAndOpenThem, open };
+  module.exports = { handleBranchReseting, getLink, open };
