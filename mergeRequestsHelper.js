@@ -53,22 +53,7 @@ async function createMergeRequestAndPush(targetBranch, isDraftPR, shouldDeleteBr
         }
       }
   
-      let options = '';
-  
-      if (includeOptions) {
-        if (shouldForce || isTempBranch) {
-          options += '-f ';
-        }
-    
-        options += `-o merge_request.create -o merge_request.target=${targetBranch} ${getLabelsPushOptionFromConfig(targetBranch)}`;
-        if (isDraftPR) {
-          options += ' -o merge_request.draft';
-        }
-    
-        if (shouldDeleteBranchAfterMergeOnServer) {
-          options += ' -o merge_request.remove_source_branch';
-        }
-      }
+      const gitLabOptions = await getGitLabPushOptions(includeOptions, shouldForce, isTempBranch, targetBranch, isDraftPR, shouldDeleteBranchAfterMergeOnServer);
   
       const upsreamExist = await isUpstreamSet(currentBranch);
       if (!upsreamExist) {
@@ -80,9 +65,9 @@ async function createMergeRequestAndPush(targetBranch, isDraftPR, shouldDeleteBr
         const currentCommitMessage = getCurrentCommitMessage();
         const automaticPRMessage = includeOptions ? ' - triggered PR creation' : '';
         await runGitCommand(`commit --amend -m "${currentCommitMessage.trim()} ${automaticPRMessage}"`);
-        result = await runGitCommand(`push -f origin ${currentBranch} ${options}`, true);
+        result = await runGitCommand(`push -f origin ${currentBranch} ${gitLabOptions}`, true);
       } else if (!existOnServer) {
-        result = await runGitCommand(`push origin ${currentBranch} ${options}`, true);
+        result = await runGitCommand(`push origin ${currentBranch} ${gitLabOptions}`, true);
       }
   
       return result;
@@ -157,6 +142,27 @@ async function createMergeRequestAndPush(targetBranch, isDraftPR, shouldDeleteBr
     });
 
     await sendMergeRequestNotification(commitMessage, branchToUrlMap);
+  }
+
+  async function getGitLabPushOptions(includeOptions, shouldForce, isTempBranch, targetBranch, isDraftPR, shouldDeleteBranchAfterMergeOnServer) {
+      let options = '';
+  
+      if (includeOptions) {
+        if (shouldForce || isTempBranch) {
+          options += '-f ';
+        }
+    
+        options += `-o merge_request.create -o merge_request.target=${targetBranch} ${getLabelsPushOptionFromConfig(targetBranch)}`;
+        if (isDraftPR) {
+          options += ' -o merge_request.draft';
+        }
+    
+        if (shouldDeleteBranchAfterMergeOnServer) {
+          options += ' -o merge_request.remove_source_branch';
+        }
+      }
+
+      return options
   }
 
   module.exports = { createAllMergeRequestsAndPush, createMergeRequestAndPush, handleMergeRequestsCompletion };
