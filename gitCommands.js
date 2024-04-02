@@ -1,10 +1,9 @@
 const { shouldDeleteBranch, getMainBranch, isDraft } = require('./configHelper');
-const { runGitCommand, getCurrentBranchName, uncomittedChangesExist, getCurrentCommitMessage, executeAction } = require('./gitHelper');
+const { runGitCommand, getCurrentBranchName, uncomittedChangesExist, getCurrentCommitMessage, executeAction, doesBranchExistLocally } = require('./gitHelper');
 const { askForBranchNameAndType } = require('./inquirerHelper');
 const { createAllMergeRequestsAndPush, createMergeRequestAndPush, handleMergeRequestsCompletion } = require('./mergeRequestsHelper');
 const { createNewBranchFromDefaultBranchWhileChecked, createNewBranchFromDefaultBranchWhileNOTChecked } = require('./branchHelper');
 const { readConfig } = require('./configHelper');
-const { getLink,open } = require('./commonHelper');
 
 const config = readConfig();
 const { namingConventions } = config.branchesOptions;
@@ -34,7 +33,7 @@ async function handleCreateMr(targetBranchName) {
   }
 
   const result = await createMergeRequestAndPush(branchToCreateMergeRequestTo, isDraftPR, shouldDelete);
-  const commitMessage = getCurrentCommitMessage();
+  const commitMessage = await getCurrentCommitMessage();
   await handleMergeRequestsCompletion([{response: result , targetBranch: branchToCreateMergeRequestTo}], commitMessage);
   
 }
